@@ -40,7 +40,7 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
     //是否解密
-    private static boolean encode = true;
+    private static boolean ENCODE = true;
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
@@ -59,7 +59,7 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
                 //获取注解配置的包含和去除字段
                 SecurityParameter serializedField = methodParameter.getMethodAnnotation(SecurityParameter.class);
                 //入参是否需要解密
-                encode = serializedField.inDecode();
+                ENCODE = serializedField.inDecode();
             }
             logger.info("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密");
             return new MyHttpInputMessage(inputMessage);
@@ -84,7 +84,7 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
         public MyHttpInputMessage(HttpInputMessage inputMessage) throws Exception {
             this.headers = inputMessage.getHeaders();
             String bodyMessage = FileCopyUtils.copyToString(new InputStreamReader(inputMessage.getBody(), "utf-8"));
-            if (encode) {
+            if (ENCODE) {
                 this.body = IOUtils.toInputStream(DESHelper.decrypt(easpString(URLDecoder.decode(bodyMessage, "utf-8"))));
             } else {
                 this.body = IOUtils.toInputStream(easpString(URLDecoder.decode(bodyMessage, "utf-8")));
@@ -110,8 +110,12 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
         }
 
         /**
-         * @param requestData
-         * @return
+         * @description：迭代格式化加密JSON串
+         * @version 1.0
+         * @author: Yang.Chang
+         * @email: cy880708@163.com
+         * @date: 2019/2/21 下午6:28
+         * @mofified By:
          */
         public String easpString(String requestData){
             if(requestData != null && !requestData.equals("")){

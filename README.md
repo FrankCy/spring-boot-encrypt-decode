@@ -1,6 +1,6 @@
 # Spring Boot Encrypt Decode #
 ## 简介 ##
-Spring Boot 2.0+ 请求加密解密
+Spring Boot 2.0+ JSON字符串加密解密
 
 ## RequestBodyAdvice / ResponseBodyAdvice ##
 - RequestBodyAdvice
