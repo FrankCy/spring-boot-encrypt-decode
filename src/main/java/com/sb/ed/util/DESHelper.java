@@ -126,7 +126,7 @@ public class DESHelper {
     }
 
     public static void main(String[] args) throws Exception {
-        String enString = encrypt("{\"pageEntity\":{\"pageSize\":\"20\",\"pageIndex\":\"0\"},\"instance\":{\"status\":\"7\"}}");
+        String enString = encrypt("\"cDes\":\"描述信息\",\"cCode\":\"9521\",\"cName\":\"Frank-New");
         System.out.println("加密后的字串是：" + enString);
         String deString = decrypt(enString);
         System.out.println("解密后的字串是：" + deString);

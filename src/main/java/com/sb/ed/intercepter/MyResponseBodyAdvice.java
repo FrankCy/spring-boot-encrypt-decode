@@ -22,14 +22,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @date: 2019/2/21 下午2:00
  * @mofified By:
  */
-public class MyResponseBodyAdvice {
-
-}
-/*
 @ControllerAdvice(basePackages = "com.sb.ed")
 public class MyResponseBodyAdvice implements ResponseBodyAdvice {
 
     private final static Logger logger = LoggerFactory.getLogger(MyResponseBodyAdvice.class);
+
+    //是否解密
+    private static boolean encode = true;
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
@@ -38,7 +37,6 @@ public class MyResponseBodyAdvice implements ResponseBodyAdvice {
 
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter methodParameter, MediaType mediaType, Class aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        boolean encode = false;
         if (methodParameter.getMethod().isAnnotationPresent(SecurityParameter.class)) {
             //获取注解配置的包含和去除字段
             SecurityParameter serializedField = methodParameter.getMethodAnnotation(SecurityParameter.class);
@@ -60,4 +58,3 @@ public class MyResponseBodyAdvice implements ResponseBodyAdvice {
     }
 
 }
-*/

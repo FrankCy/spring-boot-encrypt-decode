@@ -9,13 +9,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
 /**
  * @version 1.0
@@ -27,14 +32,15 @@ import java.lang.reflect.Type;
  * @date: 2019/2/21 下午1:58
  * @mofified By:
  */
-public class MyRequestBodyAdvice  {
-}
-
-/*
 @ControllerAdvice(basePackages = "com.sb.ed")
 public class MyRequestBodyAdvice implements RequestBodyAdvice {
 
     private static final Logger logger = LoggerFactory.getLogger(MyRequestBodyAdvice.class);
+
+    private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+
+    //是否解密
+    private static boolean encode = true;
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
@@ -49,19 +55,14 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
     @Override
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) throws IOException {
         try {
-            boolean encode = false;
             if (methodParameter.getMethod().isAnnotationPresent(SecurityParameter.class)) {
                 //获取注解配置的包含和去除字段
                 SecurityParameter serializedField = methodParameter.getMethodAnnotation(SecurityParameter.class);
                 //入参是否需要解密
                 encode = serializedField.inDecode();
             }
-            if (encode) {
-                logger.info("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密");
-                return new MyHttpInputMessage(inputMessage);
-            }else {
-                return inputMessage;
-            }
+            logger.info("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密");
+            return new MyHttpInputMessage(inputMessage);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("对方法method :【" + methodParameter.getMethod().getName() + "】返回数据进行解密出现异常："+e.getMessage());
@@ -75,13 +76,27 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
     }
 
     class MyHttpInputMessage implements HttpInputMessage {
+
         private HttpHeaders headers;
 
         private InputStream body;
 
         public MyHttpInputMessage(HttpInputMessage inputMessage) throws Exception {
             this.headers = inputMessage.getHeaders();
-            this.body = IOUtils.toInputStream(DESHelper.decrypt(easpString(IOUtils.toString(inputMessage.getBody(), "UTF-8"))), "UTF-8");
+            String bodyMessage = FileCopyUtils.copyToString(new InputStreamReader(inputMessage.getBody(), "utf-8"));
+            if (encode) {
+                this.body = IOUtils.toInputStream(DESHelper.decrypt(easpString(URLDecoder.decode(bodyMessage, "utf-8"))));
+            } else {
+                this.body = IOUtils.toInputStream(easpString(URLDecoder.decode(bodyMessage, "utf-8")));
+            }
+        }
+
+        private Charset getContentTypeCharset(MediaType contentType) {
+            if (contentType != null && contentType.getCharset() != null) {
+                return contentType.getCharset();
+            } else {
+                return DEFAULT_CHARSET;
+            }
         }
 
         @Override
@@ -95,16 +110,16 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
         }
 
         /**
-         *
          * @param requestData
          * @return
+         */
         public String easpString(String requestData){
             if(requestData != null && !requestData.equals("")){
-                if(!requestData.startsWith("{\"requestData\":")){
+                if(!requestData.startsWith("value=")){
                     throw new RuntimeException("参数【requestData】缺失异常！");
                 }else{
-                    int closeLen = requestData.length()-2;
-                    int openLen = "{\"requestData\":".length()+1;
+                    int closeLen = requestData.length();
+                    int openLen = "value=".length();
                     return StringUtils.substring(requestData,openLen,closeLen);
                 }
             }
@@ -113,4 +128,3 @@ public class MyRequestBodyAdvice implements RequestBodyAdvice {
     }
 }
 
-*/

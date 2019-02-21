@@ -1,5 +1,6 @@
 package com.sb.ed.controller;
 
+import com.sb.ed.vo.CompanyUser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,8 @@ public class IndexController {
     private static final Log logger = LogFactory.getLog(IndexController.class);
 
     @RequestMapping(value = "/index", method = RequestMethod.POST)
-    public String index(@RequestParam(value = "value") String body){
-        logger.info("请求信息： " + body);
-        return body;
+    public String index(@RequestBody() String val){
+        logger.info("请求信息： " + val);
+        return val;
     }
 }
