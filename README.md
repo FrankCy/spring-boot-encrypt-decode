@@ -12,7 +12,7 @@ Spring Boot 2.0+ JSON字符串加密解密
 - 请求必须是@RequestBody、请求的Content-Type=application/x-www-form-urlencoded
 ```java
 public String index(@RequestBody String body){
-        logger.info("请求信息： " + body);
-        return body;
-    }
+    logger.info("请求信息： " + body);
+    return body;
+}
 ```
